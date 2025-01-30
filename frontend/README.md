@@ -6,6 +6,10 @@ A full-stack application for registering and managing superheroes with humility 
 - Frontend: Next.js with Chakra UI
 - Backend: Express.js REST API
 
+## Requirements
+- Node.js v18+
+- npm v8.19+
+
 ## Getting Started
 1. Start the backend:
 cd backend

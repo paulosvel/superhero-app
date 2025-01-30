@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -10,9 +10,9 @@ import {
   Button,
   Heading,
   useToast,
-} from '@chakra-ui/react';
-import { api } from '@/services/api';
-import { CreateSuperheroDTO } from '@/types';
+} from "@chakra-ui/react";
+import { api } from "@/services/api";
+import { CreateSuperheroDTO } from "@/types";
 
 interface HeroFormProps {
   onSuccess: () => void;
@@ -20,30 +20,50 @@ interface HeroFormProps {
 
 export default function HeroForm({ onSuccess }: HeroFormProps) {
   const [formData, setFormData] = useState<CreateSuperheroDTO>({
-    name: '',
-    superpower: '',
-    humilityScore: 0,
+    name: "",
+    superpower: "",
+    humilityScore: "" as unknown as number,
   });
   const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate humility score before submission
+    const score = Number(formData.humilityScore);
+    if (isNaN(score) || score < 1 || score > 10) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid humility score between 1 and 10",
+        status: "error",
+        duration: 3000,
+      });
+      return;
+    }
+
     try {
-      await api.createSuperhero(formData);
-      setFormData({ name: '', superpower: '', humilityScore: 0 });
+      await api.createSuperhero({
+        ...formData,
+        humilityScore: score,
+      });
+      setFormData({
+        name: "",
+        superpower: "",
+        humilityScore: "" as unknown as number,
+      });
       onSuccess();
       toast({
-        title: 'Success',
-        description: 'Hero added successfully',
-        status: 'success',
+        title: "Success",
+        description: "Hero added successfully",
+        status: "success",
         duration: 3000,
       });
     } catch (err: unknown) {
       const error = err as Error;
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 3000,
       });
     }
@@ -76,16 +96,19 @@ export default function HeroForm({ onSuccess }: HeroFormProps) {
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel>Humility Score (01-10)</FormLabel>
+              <FormLabel>Humility Score (1-10)</FormLabel>
               <Input
                 type="number"
                 min={1}
                 max={10}
-                value={formData.humilityScore}
+                value={formData.humilityScore || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    humilityScore: Number(e.target.value),
+                    humilityScore:
+                      e.target.value === ""
+                        ? ("" as unknown as number)
+                        : Number(e.target.value),
                   })
                 }
               />
